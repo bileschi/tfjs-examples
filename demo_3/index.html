@@ -1,0 +1,95 @@
+<!--
+Copyright 2018 Google LLC. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================
+-->
+
+<!-- This tiny example illustrates how little code is necessary build
+/ train / predict from a model in TensorFlow.js.  Edit the associated
+index.js code and refresh this file in your browser to quickly
+explore the API. -->
+
+
+<html>
+  <head>
+    <!--script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest"> </script-->
+    <script src="./tf.min.js"> </script>
+  </head>
+  <body>
+    <h1>Demo 3<hr/></h1>
+    <h4>Tuning a vocabulary layer<hr/></h4>
+    <pre>
+      const strings = loadMyStrings();
+    </pre><p></p>
+    <pre>
+      const vocabInitializer = tf.initializers.knownVocab(
+        {strings: ['hello', 'world', 'こんにちは', '世界']});
+    </pre><p></p>
+    <pre>
+      vocabLayer = tf.layers.vocab({
+          name: 'myVocabLayer',
+          knownVocabSize: 4,
+          hashVocabSize: 1,
+          vocabInitializer: vocabInitializer,
+          optimizer: new tf.preprocessing.VocabLayerOptimizer(),
+          inputShape: [2]  // two words per example
+        });
+    </pre><p></p>
+    <pre>
+      const vocabModel = tf.sequential({
+        layers: [vocabLayer]
+      });
+    </pre><p></p>
+    <pre>
+      vocabModel.predict(
+        tf.preprocessing.stringTensor(
+          [['hello', 'world']])).print();
+    </pre><p></p>
+    <pre>
+      vocabModel.predict(
+        tf.preprocessing.stringTensor(
+          [['こんにちは', '世界']])).print();
+    </pre><p></p>
+    <pre>
+      vocabModel.predict(
+        tf.preprocessing.stringTensor(
+          [['outOf', 'vocabulary']])).print();
+    </pre><p></p>
+    <pre>
+      vocabModel.predict(
+        tf.preprocessing.stringTensor(
+          [['outOf', 'vocabulary']])).print();
+    </pre><p></p>
+    <pre>
+      vocabModel.compile({optimizer: 'SGD', loss: 'meanSquaredError'});
+    </pre><p></p>
+    <pre>
+      const trainInputs = tf.preprocessing.stringTensor2d(
+        [['a', 'a'], ['b', 'b'], ['c', 'c'], ['d', 'd']]);
+    </pre><p></p>
+    <pre>
+      // Fit the model to a tensor of strings.
+      await vocabModel.fit(trainInputs, null, {batchSize: 1, epochs: 1});
+    </pre><p></p>
+    <pre>
+      const testInputs = tf.preprocessing.stringTensor2d(
+        [['a', 'b'], ['c', 'd'], ['hello', 'world']]);
+    </pre><p></p>
+    <pre>
+      const testOutputs = vocabModel.predict(testInputs);
+    </pre>
+  <div id="micro_out_div"></div>
+    <script src="./index.js"> </script>
+  </body>
+</html>
